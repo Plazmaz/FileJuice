@@ -1,5 +1,9 @@
 FIDS *(File-based image distribution system)*
 ====
+People who made this possible:
+---
+Tadeo Kondrak <tadeo@kondrak.tk> - a good friend of mine who made the wonderful tutorial you'll see below
+Dale Shumate - My mentor and an awesome guy
 
 Intro
 ---
@@ -72,7 +76,7 @@ License
 MIT License:
 
 The MIT License (MIT)
-Copyright © 2014 Dylan Katz <dylanishappy1@gmail.com> and Tadeo Kondrak <tadeo@kondrak.tk>
+Copyright © 2014 Dylan Katz <dylanishappy1@gmail.com>
 
 Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
 
