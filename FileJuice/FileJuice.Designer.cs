@@ -1,4 +1,4 @@
-﻿namespace File_through_image_based_distribution_system_FIDS
+﻿namespace FileJuice
 {
     using System;
     using System.Windows.Forms;
@@ -42,7 +42,7 @@
             // 
             // fileselector
             // 
-            this.fileselector.Filter = "Executable files (*.exe)|*.exe";
+            this.fileselector.Filter = "All files (*.*)|*.*";
             this.fileselector.RestoreDirectory = true;
             // 
             // btnCompress

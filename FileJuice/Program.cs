@@ -4,7 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace File_through_image_based_distribution_system_FIDS
+namespace FileJuice
 {
     static class Program
     {

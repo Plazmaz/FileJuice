@@ -9,15 +9,17 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
 
-namespace File_through_image_based_distribution_system_FIDS
+namespace FileJuice
 {
     public partial class main : Form
     {
         Boolean decompressing = false;
         Bitmap output;
         Bitmap inputImage;
+        ByteCompression compress = new ByteCompression();
         byte[] outputBytes;
         byte[] preBytes;
+        private FileInfo curFile;
         public main()
         {
             InitializeComponent();
@@ -27,9 +29,10 @@ namespace File_through_image_based_distribution_system_FIDS
         {
 
             if (!decompressing && preBytes != null)
-                compress();
+                compress.readFileBytes(curFile);
             else if (inputImage != null)
-                decompress();
+                //decompress();
+                compress.decompress(inputImage);
             else
                 MessageBox.Show("Please select a valid file!");
         }
@@ -84,9 +87,12 @@ namespace File_through_image_based_distribution_system_FIDS
 
         }
 
-        private void compress()
+        public static void compressToImage(byte[] preBytes)
         {
             int fullSize = preBytes.Length;
+            Console.WriteLine("MB: " + (double)preBytes.Length / 1048576.0);
+            Console.WriteLine("KB: " + (double)preBytes.Length / 1024.0);
+           // return;
             int sizex = (int)Math.Ceiling(Math.Sqrt(preBytes.Length));
             int p65k = (int)Math.Floor(fullSize * 1.0 / 65536); //converting to short value?
             int remainder = fullSize % 65536;
@@ -96,33 +102,34 @@ namespace File_through_image_based_distribution_system_FIDS
             //size = size / 3;
             int sizey = sizex / 3; //Only y is divided by three, so as to avoid dividing by 3^2, or 9. 
                                    //Now you're thinking in Portals!
-            output = new Bitmap((int)sizex, (int)sizey);
+            Bitmap output = new Bitmap((int)sizex, (int)sizey);
             int counter = 0;
             for (int y = 0; y < sizey && counter < fullSize; y++)
             {
                 for (int x = 0; x < sizex && counter < fullSize; x++)
                 {
                     Color color = new Color();
-                    if (x == 0 && y == 0)
-                    {
-                        color = Color.FromArgb(p65k, p256, remainder);
-                    }
-                    else
-                    {
+                    //if (x == 0 && y == 0)
+                    //{
+                    //    color = Color.FromArgb(p65k, p256, remainder);
+                    //}
+                    //else
+                    //{
                         int r = (counter < fullSize) ? preBytes[counter] : 0;
                         int g = (counter + 1 < fullSize) ? preBytes[counter + 1] : 0;
                         int b = (counter + 2 < fullSize) ? preBytes[counter + 2] : 0;
                         color = Color.FromArgb(r, g, b);
                         counter += 3;
-                        pBarConversion.Value = (counter / fullSize) * 100;
-                    }
-                    output.SetPixel(x, y, color);
-
+                        //pBarConversion.Value = (counter / fullSize) * 100;
+                    //}
+                        output.SetPixel(x, y, color);
+                        //Console.WriteLine("original x: " + x + " y: " + y + " color: " + color.ToString());
                 }
             }
-            pBoxEncoded.Image = output;
+            //pBoxEncoded.Image = output;
+           
             
-            output.Save("tmpimg.png", System.Drawing.Imaging.ImageFormat.Png);
+            output.Save("tmpimg-orig.png", System.Drawing.Imaging.ImageFormat.Png);
         }
         private void fileChooser_Click(object sender, EventArgs e)
         {
@@ -139,6 +146,7 @@ namespace File_through_image_based_distribution_system_FIDS
                     {
                         preBytes = File.ReadAllBytes(fileselector.FileName);
                         String ext = fileselector.FileName.Substring(fileselector.FileName.IndexOf("."));
+                        curFile = new FileInfo(fileselector.FileName);
                         // File.WriteAllBytes("tmp" + ext, preBytes);
                     }
                     catch (Exception ex)
@@ -149,7 +157,6 @@ namespace File_through_image_based_distribution_system_FIDS
                 else
                 {
                     inputImage = new Bitmap(fileselector.FileName);
-
                 }
             }
         }
@@ -163,7 +170,7 @@ namespace File_through_image_based_distribution_system_FIDS
             }
             else
             {
-                fileselector.Filter = "Executable files (*.exe)|*.exe";
+                fileselector.Filter = "All files *.*|*.*";
             }
         }
 
