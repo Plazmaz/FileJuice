@@ -24,21 +24,22 @@ namespace FileJuice
             filecount = modifiedLen / (255 * 255 * 255);
             long originalLen = modifiedLen;
 
-            for (long i = filecount; i >= 0; i--)
+            for (long i = 0; i < filecount || (filecount == 0 && i == 0); i++)
             {
                 long curLen = (modifiedLen > 255 * 255 * 255) ? 255 * 255 * 255 : modifiedLen;
                 modifiedLen -= curLen;
-                //ColorValues = new List<Color>();
-                //long red = curLen / (255 * 255);
-                //curLen -= red * (255 * 255);
-                //long green = curLen / 255;
-                //curLen -= green * 255;
-                //long blue = curLen % 255;
-                //Color fileSize = Color.FromArgb((int)i, (int)red, (int)green, (int)blue);
+            //    ColorValues = new List<Color>();
+            //    long red = curLen / (255 * 255);
+            //    curLen -= red * (255 * 255);
+            //    long green = curLen / 255;
+            //    curLen -= green * 255;
+            //    long blue = curLen % 255;
+            //    Color fileSize = Color.FromArgb((int)i, (int)red, (int)green, (int)blue);
 
-
+                byteIndex = 0;
                 //ColorValues.Add(fileSize);
-                while (byteIndex + modifiedLen < curLen)
+                long trueByteIndex = byteIndex + (originalLen - modifiedLen);
+                while (byteIndex < curLen)
                 {
                     if (nextFourMatch())
                     {
@@ -49,8 +50,9 @@ namespace FileJuice
                             long a = 254;
                             long r = patLen / 255;
                             long g = patLen % 255;
-                            long b = originalBytes[byteIndex];
+                            long b = originalBytes[trueByteIndex];
                             byteIndex += patLen;
+                            trueByteIndex += patLen;
                             ColorValues.Add(Color.FromArgb((int)a, (int)r, (int)g, (int)b));
                         }
                     }
@@ -61,10 +63,12 @@ namespace FileJuice
                         long b = (byteIndex + 2 < originalBytes.Length) ? originalBytes[byteIndex + 2] : 0;
                         ColorValues.Add(Color.FromArgb((int)r, (int)g, (int)b));
                         byteIndex += 3;
+                        trueByteIndex += 3;
                         //pBarConversion.Value = (byteIndex / fullSize) * 100;
                     }
                 }
-                ColorValues.Add(Color.FromArgb(0, 0, 0, 0));
+                if(i == filecount-1)
+                    ColorValues.Add(Color.FromArgb(0, 0, 0, 0));
                 writeOutput(i);
                 ColorValues.Clear();
             }
@@ -102,8 +106,8 @@ namespace FileJuice
                 //}
             }
             ColorValues.Clear();
-            output.Save("tmpimg-" + modifier + ".png");
-            
+            output.Save("tmpimg" + (modifier > 0 ? "-" + modifier : "") + ".png");
+            output.Dispose();
             main.compressToImage(originalBytes);
         }
         public bool nextFourMatch()
@@ -124,67 +128,62 @@ namespace FileJuice
                 return 0;
             while (byteIndex + count < originalBytes.Length && originalBytes[byteIndex + count] == originalBytes[byteIndex])
                 count++;
-            Console.WriteLine();
             return count;
         }
-        public void decompress(Bitmap image)
+        public void decompress(String filename, String extension)
         {
-            Color firstColor = image.GetPixel(0, 0);
-            long originalLen = firstColor.R * (255 * 255);
-            originalLen += firstColor.G * (255);
-            originalLen += firstColor.B;
-            //originalLen += 25;
-            byte[] outBytes = new byte[originalLen];
-            Console.WriteLine("Original File Size: ");
-            Console.WriteLine("MB: " + (double)originalLen / 1048576.0);
-            Console.WriteLine("KB: " + (double)originalLen / 1024.0);
-            long byteIndex = 0;
-            bool cont = true;
-            for (long y = 0; y < image.Height && cont; y++)
+
+            List<Bitmap> images = new List<Bitmap>();
+            int j = 0;
+            while (new FileInfo(filename + (j > 0 ? "-" + j : "") + ".png").Exists)
             {
-                for (long x = 0; x < image.Width && cont; x++)
+                images.Add((Bitmap)Bitmap.FromFile(filename + (j > 0 ? "-" + j : "") + ".png"));
+                j++;
+            }
+            //Color firstColor = image.GetPixel(0, 0);
+            //long originalLen = firstColor.R * (255 * 255);
+            //originalLen += firstColor.G * (255);
+            //originalLen += firstColor.B;
+            //filecount = originalLen / (255 * 255 * 255);
+            //originalLen += 25;
+            List<byte> outBytes = new List<byte>();
+            foreach(Bitmap image in images) {
+                bool cont = true;
+                for (long y = 0; y < image.Height && cont; y++)
                 {
-                    //if (y == 0 && x == 0)
-                    //{
-                    //    continue;
-                    //}
-                    Color curColor = image.GetPixel((int)x, (int)y);
-                    if (curColor.A == 0)
+                    for (long x = 0; x < image.Width && cont; x++)
                     {
-                        cont = false;
-                        continue;
-                    }
-                    if (curColor.A == 254)
-                    {
-                        long repeats = (curColor.R * 255) + curColor.G;
-                        byte pattern = curColor.B;
-                        for (long i = 0; i < repeats; i++)
+                        //if (y == 0 && x == 0)
+                        //{
+                        //    continue;
+                        //}
+                        Color curColor = image.GetPixel((int)x, (int)y);
+                        if (curColor.A == 0)
                         {
-                            outBytes[byteIndex + i] = pattern;
+                            cont = false;
+                            continue;
                         }
-                        byteIndex += repeats;
-                    }
-                    else
-                    {
-                        if (byteIndex < outBytes.Length)
+                        if (curColor.A == 254)
                         {
-                            outBytes[byteIndex] = curColor.R;
-                            byteIndex++;
+                            long repeats = (curColor.R * 255) + curColor.G;
+                            byte pattern = curColor.B;
+                            for (long i = 0; i < repeats; i++)
+                            {
+                                outBytes.Add(pattern);
+                            }
                         }
-                        if (byteIndex < outBytes.Length)
+                        else
                         {
-                            outBytes[byteIndex] = curColor.G;
-                            byteIndex++;
-                        }
-                        if (byteIndex < outBytes.Length)
-                        {
-                            outBytes[byteIndex] = curColor.B;
-                            byteIndex++;
+                                outBytes.Add(curColor.R);
+                                outBytes.Add(curColor.G);
+                                outBytes.Add(curColor.B);
                         }
                     }
                 }
+            Console.WriteLine("MB: " + (double)outBytes.Count / 1048576.0);
+            Console.WriteLine("KB: " + (double)outBytes.Count / 1024.0);
             }
-            File.WriteAllBytes("outfile.exe", outBytes);
+            File.WriteAllBytes(filename + "." + extension, outBytes.ToArray());
         }
     }
 }

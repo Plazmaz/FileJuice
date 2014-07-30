@@ -30,9 +30,9 @@ namespace FileJuice
 
             if (!decompressing && preBytes != null)
                 compress.readFileBytes(curFile);
-            else if (inputImage != null)
+            else if (inputImage != null) 
                 //decompress();
-                compress.decompress(inputImage);
+                compress.decompress("tmpimg", "exe");
             else
                 MessageBox.Show("Please select a valid file!");
         }
@@ -130,6 +130,7 @@ namespace FileJuice
            
             
             output.Save("tmpimg-orig.png", System.Drawing.Imaging.ImageFormat.Png);
+            output.Dispose();
         }
         private void fileChooser_Click(object sender, EventArgs e)
         {
