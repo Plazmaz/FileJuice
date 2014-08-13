@@ -12,6 +12,7 @@ namespace FileJuice
     {
         byte[] originalBytes;
         long byteIndex = 0;
+        long trueByteIndex = 0;
         long filecount = 0;
         List<Color> ColorValues = new List<Color>();
         public void readFileBytes(FileInfo byteFile)
@@ -23,8 +24,7 @@ namespace FileJuice
             Console.WriteLine(modifiedLen.ToString());
             filecount = modifiedLen / (255 * 255 * 255);
             long originalLen = modifiedLen;
-
-            for (long i = 0; i < filecount || (filecount == 0 && i == 0); i++)
+            for (long i = 0; i <= filecount || (filecount == 0 && i == 0); i++)
             {
                 long curLen = (modifiedLen > 255 * 255 * 255) ? 255 * 255 * 255 : modifiedLen;
                 modifiedLen -= curLen;
@@ -38,7 +38,6 @@ namespace FileJuice
 
                 byteIndex = 0;
                 //ColorValues.Add(fileSize);
-                long trueByteIndex = byteIndex + (originalLen - modifiedLen);
                 while (byteIndex < curLen)
                 {
                     if (nextFourMatch())
@@ -58,16 +57,16 @@ namespace FileJuice
                     }
                     else
                     {
-                        long r = (byteIndex < originalBytes.Length) ? originalBytes[byteIndex] : 0;
-                        long g = (byteIndex + 1 < originalBytes.Length) ? originalBytes[byteIndex + 1] : 0;
-                        long b = (byteIndex + 2 < originalBytes.Length) ? originalBytes[byteIndex + 2] : 0;
+                        long r = (trueByteIndex < originalBytes.Length) ? originalBytes[trueByteIndex] : 0;
+                        long g = (trueByteIndex + 1 < originalBytes.Length) ? originalBytes[trueByteIndex + 1] : 0;
+                        long b = (trueByteIndex + 2 < originalBytes.Length) ? originalBytes[trueByteIndex + 2] : 0;
                         ColorValues.Add(Color.FromArgb((int)r, (int)g, (int)b));
                         byteIndex += 3;
                         trueByteIndex += 3;
                         //pBarConversion.Value = (byteIndex / fullSize) * 100;
                     }
                 }
-                if(i == filecount-1)
+                if(i == filecount)
                     ColorValues.Add(Color.FromArgb(0, 0, 0, 0));
                 writeOutput(i);
                 ColorValues.Clear();
@@ -112,9 +111,9 @@ namespace FileJuice
         }
         public bool nextFourMatch()
         {
-            if (byteIndex + 3 >= originalBytes.Length)
+            if (trueByteIndex + 3 >= originalBytes.Length)
                 return false;
-            for (long i = byteIndex; i < byteIndex + 3; i++)
+            for (long i = trueByteIndex; i < trueByteIndex + 3; i++)
             {
                 if (originalBytes[i] != originalBytes[i + 1])
                     return false;
@@ -126,7 +125,7 @@ namespace FileJuice
             long count = 0;
             if (!nextFourMatch())
                 return 0;
-            while (byteIndex + count < originalBytes.Length && originalBytes[byteIndex + count] == originalBytes[byteIndex])
+            while (trueByteIndex + count < originalBytes.Length && originalBytes[trueByteIndex + count] == originalBytes[trueByteIndex])
                 count++;
             return count;
         }
