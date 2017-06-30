@@ -3,11 +3,10 @@ FIDS *(File-based image distribution system)*
 People who made this possible:
 ---
 Tadeo Kondrak <tadeo@kondrak.tk> - a good friend of mine who made the wonderful tutorial you'll see below
-Dale Shumate - My mentor and an awesome guy
 
 Intro
 ---
-FIDS is a program for compressing binaries into image files, which can be shared as an image using an image sharing service like [imgur](http://imgur.com) and decoded.
+FileJuice  is a program for compressing binaries into image files, which can be shared as an image using an image sharing service like [imgur](http://imgur.com) and decoded.
 
 Installation
 ---
