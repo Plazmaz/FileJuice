@@ -1,6 +1,6 @@
-FIDS *(File-based image distribution system)*
+FileJuice
 ====
-People who made this possible:
+Thanks to
 ---
 Tadeo Kondrak <tadeo@kondrak.tk> - a good friend of mine who made the wonderful tutorial you'll see below
 
